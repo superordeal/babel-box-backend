@@ -2,46 +2,10 @@
 branches: {
   }
 fileChange:
-  /check_db_data.js:
-    newFile: null
-    oldFile: !uuid '6a8c9239e43d4d614ae5754003f0558138c4d42e'
-  /cleanup_indices.js:
-    newFile: null
-    oldFile: !uuid '19f9996cb5df99efa2c77cf522a70538577ef633'
-  /debug_api_response.js:
-    newFile: null
-    oldFile: !uuid '7aaf2f34c56e85b5924f4a69936f6f15387747ec'
-  /debug_category_query.js:
-    newFile: null
-    oldFile: !uuid '253aee86c749ce67241817314ab78e4154f8a6c3'
-  /setup_mysql.sql:
-    newFile: null
-    oldFile: !uuid '2759d0aa1b31882f0b5772e2fad301495119dd23'
-  /src:
-    newFile: !uuid 'd0b92e71601dcf53b00811b7d479a30e027df7c9'
-    oldFile: !uuid '8d26e9b54eb1ccceefef72bc68e6edf06882a363'
-  /src/sql:
-    newFile: !uuid 'bd24dad0ab5651c9bca7228593efcce4fee6c63f'
+  /README.md:
+    newFile: !uuid 'c97acd5ad272b9659b061c3bea4c49c18e827568'
     oldFile: null
-  /src/sql/setup_mysql.sql:
-    newFile: !uuid '2759d0aa1b31882f0b5772e2fad301495119dd23'
-    oldFile: null
-  /test-db.js:
-    newFile: null
-    oldFile: !uuid '1e8e388bce31f37d40b24e642e44f60a6e599f22'
-  /test_db_query.js:
-    newFile: null
-    oldFile: !uuid 'aacec7e9e529c73019eb30e7adf88ae68b7ac458'
-  /test_delete_category.js:
-    newFile: null
-    oldFile: !uuid '82b5c15b4357c188bd69ca0276637c0e4e7752b1'
-  /test_delete_numeric_category.js:
-    newFile: null
-    oldFile: !uuid '08b5976c99f24ae2c4f5641ce8acf45f18ccfe7e'
-  /verify_db_data.js:
-    newFile: null
-    oldFile: !uuid '0fa1f424add0d41783d31bad58bbba5d5e1b69c4'
-gitCommitId: !uuid 'f8ff343ed391836715f4426ac83f2caafaaf0eae'
-renames:
-  /src/sql/setup_mysql.sql: /setup_mysql.sql
-revisionId: 3
+gitCommitId: !uuid '0799021a3ab8fb8cbc5fd3c7663a4da264e23b47'
+renames: {
+  }
+revisionId: 4
