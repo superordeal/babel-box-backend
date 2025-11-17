@@ -18,6 +18,10 @@ const Category = sequelize.define('Category', {
       notEmpty: true
     }
   },
+  color_type: {
+    type: DataTypes.STRING(50),
+    defaultValue: 'primary'
+  },
   created_at: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW

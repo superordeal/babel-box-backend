@@ -23,9 +23,9 @@ const BibleItem = sequelize.define('BibleItem', {
   },
   category: {
     type: DataTypes.STRING(255),
-    allowNull: false,
+    allowNull: true,
     validate: {
-      notEmpty: true
+      // 允许分类为空字符串，用于删除分类时的更新
     }
   },
   example: {

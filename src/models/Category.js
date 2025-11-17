@@ -7,6 +7,10 @@ const CategorySchema = new mongoose.Schema({
     trim: true,
     unique: true
   },
+  color_type: {
+    type: String,
+    default: 'primary'
+  },
   created_at: {
     type: Date,
     default: Date.now

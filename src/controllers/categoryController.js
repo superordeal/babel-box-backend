@@ -3,10 +3,10 @@ const { isDBConnected } = require('../config/db');
 
 // 模拟数据，当数据库连接失败时使用
 let mockCategories = [
-  { id: '1', name: '前端框架', created_at: new Date().toISOString() },
-  { id: '2', name: '后端开发', created_at: new Date().toISOString() },
-  { id: '3', name: '算法原理', created_at: new Date().toISOString() },
-  { id: '4', name: '数据库', created_at: new Date().toISOString() }
+  { id: '1', name: '前端框架', color_type: 'primary', created_at: new Date().toISOString() },
+  { id: '2', name: '后端开发', color_type: 'success', created_at: new Date().toISOString() },
+  { id: '3', name: '算法原理', color_type: 'warning', created_at: new Date().toISOString() },
+  { id: '4', name: '数据库', color_type: 'info', created_at: new Date().toISOString() }
 ];
 
 let mockCategoryIdCounter = 5;
@@ -60,7 +60,7 @@ const getCategoryById = async (req, res) => {
 // @route   POST /api/categories
 // @access  Public
 const createCategory = async (req, res) => {
-  const { name } = req.body;
+  const { name, color_type } = req.body;
 
   try {
     if (!name || name.trim() === '') {
@@ -70,7 +70,11 @@ const createCategory = async (req, res) => {
     if (isDBConnected()) {
       // 使用数据库
       try {
-        const category = await Category.create({ name });
+        // 创建分类时包含color_type参数，如果未提供则使用默认值
+        const category = await Category.create({ 
+          name, 
+          color_type: color_type || 'primary' // 如果未提供颜色类型，使用默认值primary
+        });
         res.status(201).json(category);
       } catch (dbError) {
         if (dbError.name === 'SequelizeUniqueConstraintError') {
@@ -87,6 +91,7 @@ const createCategory = async (req, res) => {
       const newCategory = {
         id: (mockCategoryIdCounter++).toString(),
         name,
+        color_type: color_type || 'primary', // 使用提供的颜色类型或默认值
         created_at: new Date().toISOString()
       };
       mockCategories.push(newCategory);

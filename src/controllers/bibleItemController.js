@@ -1,4 +1,5 @@
 const BibleItem = require('../models/bibleItemModel');
+const Category = require('../models/CategoryModel');
 const { Op } = require('sequelize');
 const { isDBConnected } = require('../config/db');
 
@@ -9,6 +10,7 @@ const mockBibleItems = [
     title: 'Vue Diff算法原理',
     content: 'Vue的Diff算法采用了双端比较的策略，通过比较新旧虚拟DOM树的差异，最小化DOM操作以提高性能。',
     category: '前端框架',
+    category_color: 'primary',
     created_at: new Date().toISOString()
   },
   {
@@ -16,6 +18,7 @@ const mockBibleItems = [
     title: 'Node.js事件循环机制',
     content: 'Node.js采用单线程事件循环模型，通过异步非阻塞I/O操作，实现高效的并发处理能力。',
     category: '后端开发',
+    category_color: 'success',
     created_at: new Date().toISOString()
   },
   {
@@ -23,6 +26,7 @@ const mockBibleItems = [
     title: '快速排序算法',
     content: '快速排序是一种分治算法，通过选择一个基准元素，将数组分为小于基准和大于基准的两部分，然后递归排序。',
     category: '算法原理',
+    category_color: 'warning',
     created_at: new Date().toISOString()
   },
   {
@@ -30,6 +34,7 @@ const mockBibleItems = [
     title: 'MongoDB索引优化',
     content: 'MongoDB索引可以显著提高查询性能，常用的索引类型包括单字段索引、复合索引、文本索引等。',
     category: '数据库',
+    category_color: 'info',
     created_at: new Date().toISOString()
   },
   {
@@ -37,6 +42,7 @@ const mockBibleItems = [
     title: 'React Hooks使用指南',
     content: 'React Hooks允许在函数组件中使用状态和其他React特性，常用的Hooks包括useState、useEffect、useContext等。',
     category: '前端框架',
+    category_color: 'primary',
     created_at: new Date().toISOString()
   },
   {
@@ -44,6 +50,7 @@ const mockBibleItems = [
     title: 'TypeScript高级类型',
     content: 'TypeScript提供了丰富的类型系统，包括联合类型、交叉类型、泛型、条件类型等高级特性。',
     category: '编程语言',
+    category_color: 'primary', // 默认颜色
     created_at: new Date().toISOString()
   },
   {
@@ -51,6 +58,7 @@ const mockBibleItems = [
     title: 'Redis缓存策略',
     content: 'Redis作为高性能的内存数据库，常用的缓存策略包括LRU、LFU、FIFO等，合理的缓存策略可以提高系统性能。',
     category: '缓存技术',
+    category_color: 'primary', // 默认颜色
     created_at: new Date().toISOString()
   },
   {
@@ -58,6 +66,7 @@ const mockBibleItems = [
     title: 'Docker容器化部署',
     content: 'Docker通过容器化技术实现应用的快速部署和环境一致性，使用Docker Compose可以管理多容器应用。',
     category: '运维部署',
+    category_color: 'primary', // 默认颜色
     created_at: new Date().toISOString()
   },
   {
@@ -65,6 +74,7 @@ const mockBibleItems = [
     title: 'JWT认证原理',
     content: 'JWT(JSON Web Token)是一种无状态的认证机制，由header、payload和signature三部分组成。',
     category: '安全技术',
+    category_color: 'primary', // 默认颜色
     created_at: new Date().toISOString()
   },
   {
@@ -72,6 +82,7 @@ const mockBibleItems = [
     title: '微服务架构设计',
     content: '微服务架构将应用拆分为多个独立的服务，通过API网关、服务发现、配置中心等组件实现服务治理。',
     category: '架构设计',
+    category_color: 'primary', // 默认颜色
     created_at: new Date().toISOString()
   },
   {
@@ -79,6 +90,7 @@ const mockBibleItems = [
     title: 'CSS Grid布局详解',
     content: 'CSS Grid是一种二维布局系统，可以同时处理行和列，为网页布局提供了强大的灵活性。',
     category: '前端布局',
+    category_color: 'primary', // 默认颜色
     created_at: new Date().toISOString()
   },
   {
@@ -86,6 +98,7 @@ const mockBibleItems = [
     title: 'WebSocket实时通信',
     content: 'WebSocket提供了全双工的通信通道，适用于需要实时数据更新的应用场景，如在线聊天、实时游戏等。',
     category: '网络通信',
+    category_color: 'primary', // 默认颜色
     created_at: new Date().toISOString()
   }
 ];
@@ -142,6 +155,13 @@ const getAllBibleItems = async (req, res) => {
     if (dbConnected) {
       try {
         console.log('使用数据库模式查询');
+        // 获取所有类别，创建类别到颜色的映射
+        const categories = await Category.findAll();
+        const categoryColorMap = {};
+        categories.forEach(cat => {
+          categoryColorMap[cat.name] = cat.color_type || 'primary';
+        });
+        
         // 使用findAll和count分别获取数据和总数
         const rows = await BibleItem.findAll({
           where: whereCondition,
@@ -154,11 +174,18 @@ const getAllBibleItems = async (req, res) => {
         const count = await BibleItem.count({ where: whereCondition });
         console.log('数据库查询成功，获取到', rows.length, '条记录，总数:', count);
         
+        // 为每个记录添加category_color字段
+        const rowsWithColor = rows.map(row => {
+          const item = row.toJSON();
+          item.category_color = categoryColorMap[item.category] || 'primary';
+          return item;
+        });
+        
         console.log('===== 获取全部数据请求结束 =====');
 
         // 确保返回正确的数据结构
         res.status(200).json({
-          items: rows,
+          items: rowsWithColor,
           pagination: {
             currentPage: parsedPage,
             pageSize: parsedPageSize,
@@ -312,6 +339,13 @@ const getBibleItems = async (req, res) => {
     if (dbConnected) {
       try {
         console.log('使用数据库模式查询');
+        // 获取所有类别，创建类别到颜色的映射
+        const categories = await Category.findAll();
+        const categoryColorMap = {};
+        categories.forEach(cat => {
+          categoryColorMap[cat.name] = cat.color_type || 'primary';
+        });
+        
         // 使用findAll和count分别获取数据和总数
         const rows = await BibleItem.findAll({
           where: whereCondition,
@@ -328,11 +362,18 @@ const getBibleItems = async (req, res) => {
           console.log('返回的记录标题:', rows.map(item => item.title));
         }
         
+        // 为每个记录添加category_color字段
+        const rowsWithColor = rows.map(row => {
+          const item = row.toJSON();
+          item.category_color = categoryColorMap[item.category] || 'primary';
+          return item;
+        });
+        
         console.log('===== 搜索请求结束 =====');
 
         // 确保返回正确的数据结构
         res.status(200).json({
-          items: rows,
+          items: rowsWithColor,
           pagination: {
             currentPage: parsedPage,
             pageSize: parsedPageSize,
@@ -450,7 +491,13 @@ const getBibleItemById = async (req, res) => {
       if (!bibleItem) {
         return res.status(404).json({ message: '八股文条目不存在' });
       }
-      res.status(200).json(bibleItem);
+      
+      // 获取该条目的分类颜色
+      const item = bibleItem.toJSON();
+      const category = await Category.findOne({ where: { name: item.category } });
+      item.category_color = category ? (category.color_type || 'primary') : 'primary';
+      
+      res.status(200).json(item);
     } else {
       // 使用模拟数据
       const bibleItem = mockBibleItems.find(item => item.id === req.params.id);
@@ -491,14 +538,32 @@ const createBibleItem = async (req, res) => {
         category,
         example: example || null
       });
-      res.status(201).json(bibleItem);
+      
+      // 获取该条目的分类颜色
+      const item = bibleItem.toJSON();
+      const categoryRecord = await Category.findOne({ where: { name: category } });
+      item.category_color = categoryRecord ? (categoryRecord.color_type || 'primary') : 'primary';
+      
+      res.status(201).json(item);
     } else {
       // 使用模拟数据
+      // 获取颜色类型（默认使用primary）
+      const getCategoryColor = (cat) => {
+        const colorMap = {
+          '前端框架': 'primary',
+          '后端开发': 'success',
+          '算法原理': 'warning',
+          '数据库': 'info'
+        };
+        return colorMap[cat] || 'primary';
+      };
+      
       const newBibleItem = {
         id: (mockIdCounter++).toString(),
         title,
         content,
         category,
+        category_color: getCategoryColor(category),
         example,
         created_at: new Date().toISOString()
       };
@@ -530,12 +595,12 @@ const updateBibleItem = async (req, res) => {
       if (title !== undefined && title.trim() === '') {
         return res.status(400).json({ message: '标题不能为空' });
       }
+      // 允许分类为空字符串，用于删除分类时的更新
       if (content !== undefined && content.trim() === '') {
         return res.status(400).json({ message: '内容不能为空' });
       }
-      if (category !== undefined && category.trim() === '') {
-        return res.status(400).json({ message: '分类不能为空' });
-      }
+      // 允许分类为空字符串，用于删除分类时的更新
+      // 不再验证分类不能为空
 
       // 更新字段
       if (title !== undefined) bibleItem.title = title;
@@ -545,7 +610,13 @@ const updateBibleItem = async (req, res) => {
       bibleItem.updated_at = new Date();
 
       await bibleItem.save();
-      res.status(200).json(bibleItem);
+      
+      // 获取更新后的分类颜色
+      const item = bibleItem.toJSON();
+      const categoryRecord = await Category.findOne({ where: { name: item.category } });
+      item.category_color = categoryRecord ? (categoryRecord.color_type || 'primary') : 'primary';
+      
+      res.status(200).json(item);
     } else {
       // 使用模拟数据
       const index = mockBibleItems.findIndex(item => item.id === req.params.id);
@@ -560,9 +631,7 @@ const updateBibleItem = async (req, res) => {
       if (content !== undefined && content.trim() === '') {
         return res.status(400).json({ message: '内容不能为空' });
       }
-      if (category !== undefined && category.trim() === '') {
-        return res.status(400).json({ message: '分类不能为空' });
-      }
+      // 允许分类为空字符串，用于删除分类时的更新
 
       // 更新字段
       if (title !== undefined) mockBibleItems[index].title = title;

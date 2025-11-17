@@ -8,6 +8,7 @@ USE `babel box`;
 CREATE TABLE IF NOT EXISTS categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    color_type VARCHAR(50) DEFAULT 'primary',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY unique_category_name (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -26,12 +27,12 @@ CREATE TABLE IF NOT EXISTS bible_items (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 创建示例数据
-INSERT INTO categories (name) VALUES 
-('技术'),
-('生活'),
-('工作'),
-('学习')
-ON DUPLICATE KEY UPDATE name = name;
+INSERT INTO categories (name, color_type) VALUES 
+('技术', 'primary'),
+('生活', 'success'),
+('工作', 'warning'),
+('学习', 'info')
+ON DUPLICATE KEY UPDATE name = VALUES(name), color_type = VALUES(color_type);
 
 -- 创建示例八股文数据
 INSERT INTO bible_items (title, content, category, example) VALUES 
