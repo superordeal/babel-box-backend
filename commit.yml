@@ -2,10 +2,37 @@
 branches: {
   }
 fileChange:
-  /README.md:
-    newFile: !uuid 'c97acd5ad272b9659b061c3bea4c49c18e827568'
-    oldFile: null
-gitCommitId: !uuid '0799021a3ab8fb8cbc5fd3c7663a4da264e23b47'
+  /src:
+    newFile: !uuid '117f200546c93e0f468facf100bddd916ff44b4d'
+    oldFile: !uuid 'd0b92e71601dcf53b00811b7d479a30e027df7c9'
+  /src/controllers:
+    newFile: !uuid 'b12a98642a2f43c309f6b4bbb0739dae84ab2857'
+    oldFile: !uuid '9ea6648fda3350d094d46e8ab185317e03272ea5'
+  /src/controllers/bibleItemController.js:
+    newFile: !uuid 'c2cd9c7941ea63f80734d7df43b1848b0ce11957'
+    oldFile: !uuid 'b1a7fbc0b2ce0317ebf118ef6d6950dad8be1c9d'
+  /src/controllers/categoryController.js:
+    newFile: !uuid '7aaad5472bd833b5db13e6332f3166f13a0d56a8'
+    oldFile: !uuid '9f7ea1c55bed7868cd32d4437b84428e796e5fbf'
+  /src/models:
+    newFile: !uuid '2d9dbe21d2a40ebd2d1d7e5fddf429c5ebc29116'
+    oldFile: !uuid '8213cc3627abe58f2e1714d48f8f369b3e59867d'
+  /src/models/BibleItemModel.js:
+    newFile: !uuid 'a52a8aec21d36591fab94e5e3d1a47e3598f95bb'
+    oldFile: !uuid '0e673888b568a8658d73dd29ab6f0d0344b0ff7e'
+  /src/models/Category.js:
+    newFile: !uuid '2547111aa3e8f1ce981b401b8255bec88694487c'
+    oldFile: !uuid '2293b31c8d4f129c1982dc072eb5851fa099d4d7'
+  /src/models/CategoryModel.js:
+    newFile: !uuid 'be01b529ad2ad49ef2cc030795adfaf9c1ee024e'
+    oldFile: !uuid 'f97242600fa5d79c7f9ba41e27631e6d30ace435'
+  /src/sql:
+    newFile: !uuid '055eaaa003427494fdbd9fb9728f3ed86cc14f8e'
+    oldFile: !uuid 'bd24dad0ab5651c9bca7228593efcce4fee6c63f'
+  /src/sql/setup_mysql.sql:
+    newFile: !uuid '33ee32c9d90fc6bcdb87c3abe8260e4ba0a90d2b'
+    oldFile: !uuid '2759d0aa1b31882f0b5772e2fad301495119dd23'
+gitCommitId: !uuid 'dd8bb275a90d58c8a7eca148302b6255815bc983'
 renames: {
   }
-revisionId: 4
+revisionId: 5
