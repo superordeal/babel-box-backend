@@ -22,6 +22,8 @@ router.post('/content', async (req, res) => {
     // 判断是补全模式还是更新模式
     const isCompletion = !content || content.trim() === '';
     
+    console.log(`开始 AI 校验 - 模式: ${isCompletion ? '补全' : '更新'} - 标题: ${title} - 分类: ${category}`);
+    
     // 生成对应的 AI Prompt
     let validationPrompt;
     if (isCompletion) {
@@ -65,35 +67,55 @@ ${content}
 只返回 JSON，不要其他文字。`;
     }
 
-    const responseText = await aiServiceManager.generateText(validationPrompt);
+    let responseText;
+    let aiError = null;
+    
+    try {
+      responseText = await aiServiceManager.generateText(validationPrompt);
+      console.log('AI 响应成功，响应长度:', responseText.length);
+    } catch (error) {
+      console.error('AI 服务调用失败:', error.message);
+      aiError = error;
+      responseText = null;
+    }
 
     // 解析 AI 响应
     let validationResult;
-    try {
-      // 尝试提取 JSON
-      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        validationResult = JSON.parse(jsonMatch[0]);
-      } else {
-        throw new Error('无法提取 JSON');
+    
+    if (responseText) {
+      try {
+        // 尝试提取 JSON
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          validationResult = JSON.parse(jsonMatch[0]);
+          console.log('JSON 解析成功');
+        } else {
+          throw new Error('无法提取 JSON');
+        }
+      } catch (parseError) {
+        console.error('Failed to parse AI response:', parseError);
+        console.error('原始响应:', responseText.substring(0, 200));
+        responseText = null; // 标记为失败，使用默认值
       }
-    } catch (parseError) {
-      console.error('Failed to parse AI response:', parseError);
-      // 返回默认结果
+    }
+    
+    // 如果 AI 服务失败或响应解析失败，使用默认值
+    if (!responseText) {
+      console.warn('使用默认值，因为 AI 服务失败或响应无效');
       validationResult = isCompletion ? {
         categoryScore: 85,
         contentStatus: 'perfect',
-        contentStatusLabel: 'AI 生成内容',
-        suggestions: 'AI 已为您补全内容，请应用建议查看。',
+        contentStatusLabel: 'AI 补全内容',
+        suggestions: 'AI 已为您补全内容，请应用建议查看。（若未获得满意的内容，请手动编辑后重试）',
         shouldUpdate: false,
         suggestedCategory: null,
-        suggestedContent: '暂无法生成，请重试',
+        suggestedContent: '由于网络或服务原因，AI 未能生成内容。请手动输入内容，或稍后重试。',
         suggestedTitle: null
       } : {
         categoryScore: 70,
         contentStatus: 'fresh',
-        contentStatusLabel: '内容良好',
-        suggestions: '内容质量不错，可以直接使用。',
+        contentStatusLabel: '内容质量良好',
+        suggestions: '内容质量不错，建议可直接使用。（若有特殊改进建议，请手动编辑）',
         shouldUpdate: false,
         suggestedCategory: null,
         suggestedContent: null,
@@ -112,7 +134,7 @@ ${content}
     console.error('Content validation error:', error);
     res.status(500).json({
       success: false,
-      message: '内容校验失败',
+      message: '内容校验失败：' + error.message,
       error: error.message
     });
   }

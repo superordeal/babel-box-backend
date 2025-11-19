@@ -18,10 +18,12 @@ const MAX_TOKENS = parseInt(process.env.VITE_AI_MAX_TOKENS || '2000');
  */
 async function generateText(prompt) {
   if (!API_KEY) {
+    console.error('AI API 密钥未配置');
     throw new Error('AI API 密钥未配置');
   }
 
   try {
+    console.log('发送 AI 请求，超时设置:', TIMEOUT, '毫秒');
     const response = await axios.post(
       DOBAO_API_URL,
       {
@@ -45,18 +47,23 @@ async function generateText(prompt) {
 
     // 提取文本内容
     if (response.data && response.data.choices && response.data.choices[0]) {
-      return response.data.choices[0].message.content;
+      const result = response.data.choices[0].message.content;
+      console.log('AI 请求成功，获取响应内容长度:', result.length);
+      return result;
     }
 
+    console.error('AI 响应格式异常:', response.data);
     throw new Error('AI 响应格式异常');
   } catch (error) {
     if (error.response) {
       // API 返回错误
       console.error('AI API Error:', error.response.status, error.response.data);
-      throw new Error(`AI API 错误: ${error.response.status}`);
+      throw new Error(`AI API 错误: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
     } else if (error.code === 'ECONNABORTED') {
-      throw new Error('AI 请求超时');
+      console.error('AI 请求超时');
+      throw new Error('AI 请求超时（60秒）');
     } else {
+      console.error('AI 请求失败:', error.message);
       throw new Error(`AI 请求失败: ${error.message}`);
     }
   }
