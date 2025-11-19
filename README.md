@@ -24,18 +24,23 @@ backend/
 ├── src/                    # 源代码
 │   ├── config/            # 配置文件
 │   │   ├── db.js          # 数据库配置
-│   │   └── seedData.js    # 种子数据
+│   │   ├── initDB.js      # 数据库初始化
+│   │   ├── seedData.js    # 种子数据(已弃用，仅参考)
+│   │   └── testConnection.js    # 数据库连接测试
 │   ├── controllers/       # 控制器
+│   │   ├── aiServiceManager.js  # AI服务管理
 │   │   ├── bibleItemController.js  # 八股文控制器
 │   │   └── categoryController.js   # 分类控制器
-│   ├── models/            # 数据模型
-│   │   ├── BibleItem.js   # 八股文模型(MongoDB)
-│   │   ├── BibleItemModel.js  # 八股文模型(MySQL)
-│   │   ├── Category.js    # 分类模型(MongoDB)
-│   │   └── CategoryModel.js     # 分类模型(MySQL)
+│   ├── models/            # 数据模型 (Sequelize MySQL)
+│   │   ├── BibleItemModel.js  # 八股文模型
+│   │   └── CategoryModel.js   # 分类模型
 │   ├── routes/            # 路由定义
 │   │   ├── bibleItemRoutes.js    # 八股文路由
-│   │   └── categoryRoutes.js     # 分类路由
+│   │   ├── categoryRoutes.js     # 分类路由
+│   │   ├── configRoutes.js       # 配置路由
+│   │   └── validateRoutes.js     # 校验路由
+│   ├── sql/               # SQL脚本
+│   │   └── setup_mysql.sql   # MySQL设置脚本
 │   ├── app.js             # Express应用配置
 │   └── server.js          # 服务器启动文件
 ├── .env                   # 环境变量

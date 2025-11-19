@@ -5,6 +5,8 @@ const morgan = require('morgan');
 // Import routes
 const bibleItemRoutes = require('./routes/bibleItemRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
+const configRoutes = require('./routes/configRoutes');
+const validateRoutes = require('./routes/validateRoutes');
 
 const app = express();
 
@@ -20,6 +22,8 @@ if (process.env.NODE_ENV === 'development') {
 // Mount routes
 app.use('/api/bible-items', bibleItemRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/config', configRoutes);
+app.use('/api/validate', validateRoutes);
 
 // Root route
 app.get('/', (req, res) => {
@@ -28,7 +32,9 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     availableRoutes: [
       '/api/bible-items',
-      '/api/categories'
+      '/api/categories',
+      '/api/config',
+      '/api/validate'
     ]
   });
 });
