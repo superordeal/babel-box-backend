@@ -48,7 +48,7 @@ const connectDB = async () => {
     console.log(`MySQL Connected: ${dbConfig.host}:${dbConfig.port}`);
     
     // 自动同步模型到数据库
-    await sequelize.sync({ alter: true });
+    await sequelize.sync();
     console.log('数据库模型同步完成!');
     
     dbConnected = true;
