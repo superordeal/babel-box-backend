@@ -5,6 +5,7 @@ const morgan = require('morgan');
 // Import routes
 const bibleItemRoutes = require('./routes/bibleItemRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
+const configRoutes = require('./routes/configRoutes');
 
 const app = express();
 
@@ -20,6 +21,7 @@ if (process.env.NODE_ENV === 'development') {
 // Mount routes
 app.use('/api/bible-items', bibleItemRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/config', configRoutes);
 
 // Root route
 app.get('/', (req, res) => {

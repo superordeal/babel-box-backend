@@ -55,7 +55,6 @@ const connectDB = async () => {
     return true;
   } catch (error) {
     console.warn(`MySQL连接失败: ${error.message}`);
-    console.warn('将使用模拟数据模式运行，确保前端可以正常测试');
     dbConnected = false;
     return false;
   }

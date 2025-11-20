@@ -1,194 +1,111 @@
 const Category = require('../models/CategoryModel');
+const { Op } = require('sequelize');
 const { isDBConnected } = require('../config/db');
 
-// 模拟数据，当数据库连接失败时使用
-let mockCategories = [
-  { id: '1', name: '前端框架', color_type: 'primary', created_at: new Date().toISOString() },
-  { id: '2', name: '后端开发', color_type: 'success', created_at: new Date().toISOString() },
-  { id: '3', name: '算法原理', color_type: 'warning', created_at: new Date().toISOString() },
-  { id: '4', name: '数据库', color_type: 'info', created_at: new Date().toISOString() }
-];
+const ensureConnected = (res) => {
+  if (!isDBConnected()) {
+    res.status(503).json({ message: '数据库未连接' });
+    return false;
+  }
+  return true;
+};
 
-let mockCategoryIdCounter = 5;
+const decodeValue = (value) => {
+  try {
+    return decodeURIComponent(value);
+  } catch (e) {
+    return value;
+  }
+};
 
-// @desc    Get all categories
-// @route   GET /api/categories
-// @access  Public
 const getCategories = async (req, res) => {
+  if (!ensureConnected(res)) return;
   try {
-    if (isDBConnected()) {
-      // 使用数据库
-      const categories = await Category.findAll();
-      res.status(200).json(categories);
-    } else {
-      // 使用模拟数据
-      console.log('使用模拟数据返回分类列表');
-      res.status(200).json(mockCategories);
-    }
+    const categories = await Category.findAll();
+    res.status(200).json(categories);
   } catch (err) {
-    console.error('获取分类失败:', err.message);
+    console.error('获取分类失败:', err);
     res.status(500).json({ message: '服务器错误' });
   }
 };
 
-// @desc    Get category by ID
-// @route   GET /api/categories/:id
-// @access  Public
 const getCategoryById = async (req, res) => {
+  if (!ensureConnected(res)) return;
   try {
-    if (isDBConnected()) {
-      const category = await Category.findByPk(req.params.id);
-      if (!category) {
-        return res.status(404).json({ message: '分类不存在' });
-      }
-      res.json(category);
-    } else {
-      // 使用模拟数据
-      const category = mockCategories.find(item => item.id === req.params.id);
-      if (!category) {
-        return res.status(404).json({ message: '分类不存在' });
-      }
-      res.json(category);
+    const category = await Category.findByPk(req.params.id);
+    if (!category) {
+      return res.status(404).json({ message: '分类不存在' });
     }
+    res.json(category);
   } catch (err) {
-    console.error('获取分类详情失败:', err.message);
+    console.error('获取分类详情失败:', err);
     res.status(500).json({ message: '服务器错误' });
   }
 };
 
-// @desc    Create a category
-// @route   POST /api/categories
-// @access  Public
 const createCategory = async (req, res) => {
+  if (!ensureConnected(res)) return;
   const { name, color_type } = req.body;
-
   try {
     if (!name || name.trim() === '') {
       return res.status(400).json({ message: '分类名称不能为空' });
     }
-
-    if (isDBConnected()) {
-      // 使用数据库
-      try {
-        // 创建分类时包含color_type参数，如果未提供则使用默认值
-        const category = await Category.create({ 
-          name, 
-          color_type: color_type || 'primary' // 如果未提供颜色类型，使用默认值primary
-        });
-        res.status(201).json(category);
-      } catch (dbError) {
-        if (dbError.name === 'SequelizeUniqueConstraintError') {
-          return res.status(400).json({ message: '分类已存在' });
-        }
-        throw dbError;
-      }
-    } else {
-      // 使用模拟数据
-      // Check if category already exists in mock data
-      if (mockCategories.some(item => item.name === name)) {
-        return res.status(400).json({ message: '分类已存在' });
-      }
-      const newCategory = {
-        id: (mockCategoryIdCounter++).toString(),
-        name,
-        color_type: color_type || 'primary', // 使用提供的颜色类型或默认值
-        created_at: new Date().toISOString()
-      };
-      mockCategories.push(newCategory);
-      res.status(201).json(newCategory);
-    }
+    const normalizedColor = color_type && color_type.trim() !== '' ? color_type : 'primary';
+    const category = await Category.create({
+      name,
+      color_type: normalizedColor
+    });
+    res.status(201).json(category);
   } catch (err) {
-    console.error('创建分类失败:', err.message);
+    if (err.name === 'SequelizeUniqueConstraintError') {
+      return res.status(400).json({ message: '分类已存在' });
+    }
+    console.error('创建分类失败:', err);
     res.status(500).json({ message: '服务器错误' });
   }
 };
 
-// @desc    Update a category
-// @route   PUT /api/categories/:id
-// @access  Public
 const updateCategory = async (req, res) => {
-  const { name } = req.body;
-
+  if (!ensureConnected(res)) return;
+  const { name, color_type } = req.body;
   try {
     if (!name || name.trim() === '') {
       return res.status(400).json({ message: '分类名称不能为空' });
     }
-
-    if (isDBConnected()) {
-      // 使用数据库
-      const category = await Category.findByPk(req.params.id);
-      if (!category) {
-        return res.status(404).json({ message: '分类不存在' });
-      }
-
-      // 检查新名称是否已被使用
-      const nameExists = await Category.findOne({
-        where: { name, id: { [Category.sequelize.Op.ne]: req.params.id } }
-      });
-      if (nameExists) {
-        return res.status(400).json({ message: '分类名称已被使用' });
-      }
-
-      category.name = name;
-      await category.save();
-      res.json(category);
-    } else {
-      // 使用模拟数据
-      const index = mockCategories.findIndex(item => item.id === req.params.id);
-      if (index === -1) {
-        return res.status(404).json({ message: '分类不存在' });
-      }
-      
-      // Check if new name already exists in mock data
-      if (name) {
-        const existingCategory = mockCategories.find(item => item.name === name);
-        if (existingCategory && existingCategory.id !== req.params.id) {
-          return res.status(400).json({ message: '分类名称已被使用' });
-        }
-      }
-      
-      mockCategories[index] = {
-        ...mockCategories[index],
-        name: name || mockCategories[index].name
-      };
-      res.json(mockCategories[index]);
+    const category = await Category.findByPk(req.params.id);
+    if (!category) {
+      return res.status(404).json({ message: '分类不存在' });
     }
+    const existing = await Category.findOne({
+      where: { name, id: { [Op.ne]: req.params.id } }
+    });
+    if (existing) {
+      return res.status(400).json({ message: '分类名称已被使用' });
+    }
+    category.name = name;
+    if (color_type !== undefined) {
+      category.color_type = color_type && color_type.trim() !== '' ? color_type : 'primary';
+    }
+    await category.save();
+    res.json(category);
   } catch (err) {
-    console.error('更新分类失败:', err.message);
+    console.error('更新分类失败:', err);
     res.status(500).json({ message: '服务器错误' });
   }
 };
 
-// @desc    Delete a category
-// @route   DELETE /api/categories/:id
-// @access  Public
 const deleteCategory = async (req, res) => {
+  if (!ensureConnected(res)) return;
   try {
-    if (isDBConnected()) {
-      // 使用数据库
-      // 修改：不再尝试自动判断是ID还是名称，直接通过名称查找
-      // 因为前端传来的是经过编码的分类名称，而不是ID
-      let category = await Category.findOne({ where: { name: req.params.id } });
-      
-      if (!category) {
-        return res.status(404).json({ message: '分类不存在' });
-      }
-
-      await category.destroy();
-      res.json({ message: '分类已删除' });
-    } else {
-      // 使用模拟数据
-      // 与数据库部分保持一致，直接通过名称查找
-      let index = mockCategories.findIndex(item => item.name === req.params.id);
-      
-      if (index === -1) {
-        return res.status(404).json({ message: '分类不存在' });
-      }
-      mockCategories.splice(index, 1);
-      res.json({ message: '分类已删除' });
+    const categoryName = decodeValue(req.params.id);
+    const category = await Category.findOne({ where: { name: categoryName } });
+    if (!category) {
+      return res.status(404).json({ message: '分类不存在' });
     }
+    await category.destroy();
+    res.json({ message: '分类已删除' });
   } catch (err) {
-    console.error('删除分类失败:', err.message);
+    console.error('删除分类失败:', err);
     res.status(500).json({ message: '服务器错误' });
   }
 };
